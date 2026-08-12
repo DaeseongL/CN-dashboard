@@ -195,7 +195,7 @@
       </select>
     </div>
     <button id="refreshBtn" style="margin-left:8px;border:1px solid var(--border);background:var(--bg);border-radius:9px;padding:8px 14px;font-size:12.5px;font-weight:700;color:var(--text);cursor:pointer;">⟳ 새로고침</button>
-    <div class="refresh-note">1분마다 자동 갱신</div>
+    <div class="refresh-note">필터 변경 시 자동 조회</div>
   </div>
 
   <div id="errorBox"></div>
@@ -215,7 +215,6 @@
    실제 Apps Script 웹앱 연동 설정
    ═══════════════════════════════════════════════════════════ */
 const API_BASE = "https://script.google.com/macros/s/AKfycbyOV5yFJDkezYT8f7h44b5YroQ8FfXEpsEDctpIq13R0g4PXHkiMfhHMsZ7WTg3tP46/exec";
-const AUTO_REFRESH_MS = 60000; // 1분
 
 const won = n => Math.round(n||0).toLocaleString("ko-KR");
 const TYPES = ["SO","IPTV","위성","기타(그 외)"];
@@ -265,8 +264,8 @@ function apiFetch(action, params){
 
     const timer = setTimeout(() => {
       cleanup();
-      reject(new Error("요청 시간 초과 (15초)"));
-    }, 15000);
+      reject(new Error("요청 시간 초과 (10분)"));
+    }, 600000);
 
     function cleanup(){
       clearTimeout(timer);
@@ -629,7 +628,6 @@ document.getElementById("refreshBtn").addEventListener("click", ()=>{
 });
 
 renderMetrics();
-setInterval(()=>{ renderMetrics(); }, AUTO_REFRESH_MS);
 </script>
 </body>
 </html>
