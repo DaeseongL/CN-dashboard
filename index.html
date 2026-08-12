@@ -250,17 +250,41 @@ function periodLabel(){
 }
 
 /* ═══════════════════════════════════════════════════════════
-   API 호출
+   API 호출 (JSONP 방식)
+   Apps Script 웹앱은 fetch()에 CORS 헤더를 주지 않으므로
+   <script> 태그로 불러오는 JSONP로 우회한다.
    ═══════════════════════════════════════════════════════════ */
-async function apiFetch(action, params){
-  const url = new URL(API_BASE);
-  url.searchParams.set("action", action);
-  Object.entries(params||{}).forEach(([k,v]) => url.searchParams.set(k, v));
-  const res = await fetch(url.toString());
-  if(!res.ok) throw new Error(`API 오류 (${res.status})`);
-  const data = await res.json();
-  if(data.error) throw new Error(data.error);
-  return data;
+let __jsonpSeq = 0;
+function apiFetch(action, params){
+  return new Promise((resolve, reject) => {
+    const cbName = `__jsonp_cb_${Date.now()}_${__jsonpSeq++}`;
+    const url = new URL(API_BASE);
+    url.searchParams.set("action", action);
+    Object.entries(params||{}).forEach(([k,v]) => url.searchParams.set(k, v));
+    url.searchParams.set("callback", cbName);
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error("요청 시간 초과 (15초)"));
+    }, 15000);
+
+    function cleanup(){
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = (data) => {
+      cleanup();
+      if (data && data.error) reject(new Error(data.error));
+      else resolve(data);
+    };
+
+    const script = document.createElement("script");
+    script.src = url.toString();
+    script.onerror = () => { cleanup(); reject(new Error("스크립트 로드 실패 (네트워크 또는 배포 URL 확인 필요)")); };
+    document.body.appendChild(script);
+  });
 }
 
 // 현재 필터 기준으로 필요한 데이터를 불러와 캐시에 저장
