@@ -205,10 +205,10 @@
       </select>
     </div>
     <div class="filter-group">
-      <span class="filter-label" style="visibility:hidden;">새로고침</span>
+      <span class="filter-label">최신화</span>
       <button id="refreshBtn" style="border:1px solid var(--border);background:var(--bg);border-radius:9px;padding:8px 14px;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;">⟳ 새로고침</button>
     </div>
-    <div class="refresh-note">결과는 최대 10분 캐시됨 · 방금 매크로를 돌렸다면 "새로고침"으로 최신값 강제 조회</div>
+    <div class="refresh-note">결과는 최대 10분 캐시됨</div>
   </div>
 
   <div id="errorBox"></div>
@@ -549,9 +549,11 @@ function renderDetail(id){
 
   if(id==="ad-lab"){
     const payOrder = ["현금","어음"];
+    const stageOrder = ["1차","2차"];
     const items = [...cache.adLabFee].sort((a,b)=>
       LAB_ORDER.indexOf(a.lab)-LAB_ORDER.indexOf(b.lab) ||
       payOrder.indexOf(a.payMethod)-payOrder.indexOf(b.payMethod) ||
+      stageOrder.indexOf(a.stage)-stageOrder.indexOf(b.stage) ||
       (b.amount-a.amount)
     );
 
