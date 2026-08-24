@@ -6,43 +6,18 @@
 <title>매출·수신 대시보드</title>
 <style>
   :root{
-    --navy:#0F1C33;
-    --navy-2:#16233F;
-    --blue:#2F6FED;
-    --blue-soft:#E8EFFE;
-    --bg:#F4F6FA;
-    --card:#FFFFFF;
-    --border:#E3E8F0;
-    --text:#1A2332;
-    --muted:#64748B;
-    --amber:#B45309;
-    --amber-soft:#FEF3E2;
-    --red:#C0392B;
-    --red-soft:#FDECEA;
-    --purple:#6D42C7;
-    --purple-soft:#F1ECFB;
-    --green:#1E8E5A;
-    --green-soft:#E8F7EF;
+    --navy:#0F1C33;--navy-2:#16233F;--blue:#2F6FED;--blue-soft:#E8EFFE;
+    --bg:#F4F6FA;--card:#FFFFFF;--border:#E3E8F0;--text:#1A2332;--muted:#64748B;
+    --amber:#B45309;--amber-soft:#FEF3E2;--red:#C0392B;--red-soft:#FDECEA;
+    --purple:#6D42C7;--purple-soft:#F1ECFB;--green:#1E8E5A;--green-soft:#E8F7EF;
     --radius:14px;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0;
-    font-family:'Pretendard','Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    -webkit-font-smoothing:antialiased;
-  }
+  body{margin:0;font-family:'Pretendard','Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
   .app{max-width:1180px;margin:0 auto;padding:28px 24px 60px;}
-
   .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
   .brand{display:flex;align-items:center;gap:10px;}
-  .brand-mark{
-    width:34px;height:34px;border-radius:9px;
-    background:linear-gradient(135deg,var(--navy),var(--blue));
-    display:flex;align-items:center;justify-content:center;
-    color:#fff;font-weight:700;font-size:14px;letter-spacing:-0.5px;
-  }
+  .brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--navy),var(--blue));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;letter-spacing:-0.5px;}
   .brand-name{font-size:15px;font-weight:700;color:var(--navy-2);}
   .brand-sub{font-size:11.5px;color:var(--muted);margin-top:1px;}
   .updated{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;}
@@ -50,33 +25,17 @@
   .dot.loading{background:var(--amber);animation:pulse 1s infinite;}
   .dot.error{background:var(--red);}
   @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
-
-  .filterbar{
-    display:flex;gap:10px;flex-wrap:wrap;
-    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
-    padding:14px 16px;margin-bottom:20px;align-items:center;
-  }
+  .filterbar{display:flex;gap:10px;flex-wrap:wrap;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;align-items:center;}
   .filter-group{display:flex;flex-direction:column;gap:4px;}
   .filter-label{font-size:10.5px;color:var(--muted);font-weight:600;letter-spacing:0.02em;}
-  select{
-    appearance:none;-webkit-appearance:none;
-    background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748B'/%3E%3C/svg%3E") no-repeat right 11px center;
-    border:1px solid var(--border);border-radius:9px;padding:8px 30px 8px 12px;
-    font-size:13px;font-weight:600;color:var(--text);cursor:pointer;min-width:110px;font-family:inherit;
-  }
-  select:disabled{opacity:0.5;cursor:not-allowed;}
+  select{appearance:none;-webkit-appearance:none;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2364748B'/%3E%3C/svg%3E") no-repeat right 11px center;border:1px solid var(--border);border-radius:9px;padding:8px 30px 8px 12px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;min-width:110px;font-family:inherit;}
   select:focus{outline:2px solid var(--blue);outline-offset:1px;}
   .filter-divider{width:1px;height:34px;background:var(--border);margin:0 4px;}
   .refresh-note{margin-left:auto;font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px;}
-
   .metrics{display:grid;gap:14px;margin-bottom:22px;}
   .metrics.cols-4{grid-template-columns:repeat(4,1fr);}
   .metrics.cols-2{grid-template-columns:repeat(2,1fr);}
-  .metric-card{
-    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
-    padding:18px 18px 16px;cursor:pointer;position:relative;
-    transition:box-shadow .15s ease, transform .15s ease;overflow:hidden;
-  }
+  .metric-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 18px 16px;cursor:pointer;position:relative;transition:box-shadow .15s ease,transform .15s ease;overflow:hidden;}
   .metric-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;}
   .metric-card.blue::before{background:var(--blue);}
   .metric-card.amber::before{background:var(--amber);}
@@ -91,19 +50,14 @@
   .amber .metric-icon{background:var(--amber-soft);color:var(--amber);}
   .red .metric-icon{background:var(--red-soft);color:var(--red);}
   .purple .metric-icon{background:var(--purple-soft);color:var(--purple);}
-  .metric-value{
-    font-family:'Inter','Pretendard',sans-serif;font-variant-numeric:tabular-nums;
-    font-size:24px;font-weight:800;margin-top:12px;letter-spacing:-0.5px;color:var(--navy-2);
-  }
+  .metric-value{font-family:'Inter','Pretendard',sans-serif;font-variant-numeric:tabular-nums;font-size:24px;font-weight:800;margin-top:12px;letter-spacing:-0.5px;color:var(--navy-2);}
   .metric-value span{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px;}
   .metric-sub{font-size:11.5px;color:var(--muted);margin-top:4px;}
   .go{margin-top:12px;font-size:11.5px;font-weight:700;color:var(--blue);display:flex;align-items:center;gap:4px;opacity:0;transform:translateX(-4px);transition:.15s ease;}
-
   .sub-breakdown{margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);display:flex;flex-direction:column;gap:6px;}
   .sub-row{display:flex;justify-content:space-between;font-size:12.5px;}
   .sub-row .k{color:var(--muted);font-weight:600;}
   .sub-row .v{font-variant-numeric:tabular-nums;font-weight:700;color:var(--navy-2);}
-
   .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;min-height:200px;}
   .panel-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;color:var(--muted);text-align:center;}
   .panel-empty .big{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
@@ -113,10 +67,8 @@
   .panel-title .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;margin-left:8px;background:var(--blue-soft);color:var(--blue);vertical-align:middle;}
   .back-btn{font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:4px;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);}
   .back-btn:hover{color:var(--text);border-color:#c9d3e0;}
-
   .section-label{font-size:12.5px;font-weight:700;color:var(--muted);margin:20px 0 8px;}
   .section-label:first-child{margin-top:0;}
-
   table{width:100%;border-collapse:collapse;font-size:13px;}
   thead th{text-align:left;font-size:11px;color:var(--muted);font-weight:700;padding:8px 10px;border-bottom:1.5px solid var(--border);}
   tbody td{padding:9px 10px;border-bottom:1px solid #EEF1F5;}
@@ -133,12 +85,9 @@
   .chip-IPTV{background:#D9F2E3;color:#15803D;}
   .chip-위성{background:#F1ECFB;color:#6D42C7;}
   .chip-기타{background:#EEF0F4;color:#475569;}
-  .chip-기타\(그\ 외\){background:#EEF0F4;color:#475569;}
   tfoot td{font-weight:800;padding:11px 10px;border-top:2px solid var(--navy-2);background:#F8FAFD;}
-
   .loading-row{text-align:center;color:var(--muted);padding:40px 0;font-size:13px;}
   .error-box{background:var(--red-soft);color:var(--red);border-radius:10px;padding:14px 16px;font-size:12.5px;font-weight:600;margin-bottom:14px;}
-
   @media(max-width:860px){
     .metrics.cols-4{grid-template-columns:repeat(2,1fr);}
     .metrics.cols-2{grid-template-columns:1fr;}
@@ -149,7 +98,6 @@
 </head>
 <body>
 <div class="app">
-
   <div class="topbar">
     <div class="brand">
       <div class="brand-mark">CN</div>
@@ -180,18 +128,10 @@
     <div class="filter-group">
       <span class="filter-label">기간(월)</span>
       <select id="fMonth">
-        <option value="1">1월</option>
-        <option value="2">2월</option>
-        <option value="3">3월</option>
-        <option value="4">4월</option>
-        <option value="5">5월</option>
-        <option value="6">6월</option>
-        <option value="7" selected>7월</option>
-        <option value="8">8월</option>
-        <option value="9">9월</option>
-        <option value="10">10월</option>
-        <option value="11">11월</option>
-        <option value="12">12월</option>
+        <option value="1">1월</option><option value="2">2월</option><option value="3">3월</option>
+        <option value="4">4월</option><option value="5">5월</option><option value="6">6월</option>
+        <option value="7" selected>7월</option><option value="8">8월</option><option value="9">9월</option>
+        <option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
       </select>
     </div>
     <div class="filter-divider"></div>
@@ -213,31 +153,34 @@
 
   <div id="errorBox"></div>
   <div class="metrics cols-4" id="metrics"><div class="loading-row">불러오는 중…</div></div>
-
   <div class="panel" id="panel">
     <div class="panel-empty">
       <div class="big">위 카드를 클릭하면 상세 내역이 여기에 표시됩니다</div>
       <div class="small">거래구분을 선택한 뒤 카드를 클릭하세요</div>
     </div>
   </div>
-
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════════════
-   실제 Apps Script 웹앱 연동 설정
-   ═══════════════════════════════════════════════════════════ */
 const API_BASE = "https://script.google.com/macros/s/AKfycbyOV5yFJDkezYT8f7h44b5YroQ8FfXEpsEDctpIq13R0g4PXHkiMfhHMsZ7WTg3tP46/exec";
 
-const won = n => Math.round(n||0).toLocaleString("ko-KR");
+// ★ 숫자 변환: 문자열/Date/null 모두 안전하게 처리
+const toNum = v => {
+  if(v === null || v === undefined || v === "") return 0;
+  if(typeof v === "number") return isNaN(v) ? 0 : v;
+  const n = parseFloat(String(v).replace(/[,\s]/g,""));
+  return isNaN(n) ? 0 : n;
+};
+const won = n => Math.round(toNum(n)).toLocaleString("ko-KR");
+
 const TYPES = ["IPTV","SO","위성","기타(그 외)"];
 const CHANNEL_ORDER = ["CN","CC","CA"];
 const LAB_ORDER = ["RICH","엠크로스"];
 
-// GAS가 Date 객체를 JSON으로 보내면 UTC ISO 문자열이 됨 → 한국시간 기준 YYYY-MM-DD로 변환
-function fmtKDate(iso){
-  if(!iso) return "";
-  const d = new Date(iso);
+// ★ 날짜 포맷: ISO문자열 또는 Date 객체 모두 처리
+function fmtKDate(v){
+  if(!v) return "";
+  const d = v instanceof Date ? v : new Date(v);
   if(isNaN(d.getTime())) return "";
   return d.toLocaleDateString("en-CA", {timeZone:"Asia/Seoul"});
 }
@@ -261,11 +204,6 @@ function periodLabel(){
   return `${year}년 ${month}월 ${channel==="ALL" ? "전체 채널" : channel}`;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   API 호출 (JSONP 방식)
-   Apps Script 웹앱은 fetch()에 CORS 헤더를 주지 않으므로
-   <script> 태그로 불러오는 JSONP로 우회한다.
-   ═══════════════════════════════════════════════════════════ */
 let __jsonpSeq = 0;
 function apiFetchOnce(action, params){
   return new Promise((resolve, reject) => {
@@ -274,66 +212,55 @@ function apiFetchOnce(action, params){
     url.searchParams.set("action", action);
     Object.entries(params||{}).forEach(([k,v]) => url.searchParams.set(k, v));
     url.searchParams.set("callback", cbName);
-
-    const timer = setTimeout(() => {
-      cleanup();
-      reject(new Error("요청 시간 초과 (10분)"));
-    }, 600000);
-
-    function cleanup(){
-      clearTimeout(timer);
-      delete window[cbName];
-      if (script.parentNode) script.parentNode.removeChild(script);
-    }
-
-    window[cbName] = (data) => {
-      cleanup();
-      if (data && data.error) reject(new Error(data.error));
-      else resolve(data);
-    };
-
+    const timer = setTimeout(() => { cleanup(); reject(new Error("요청 시간 초과")); }, 600000);
+    function cleanup(){ clearTimeout(timer); delete window[cbName]; if(script.parentNode) script.parentNode.removeChild(script); }
+    window[cbName] = (data) => { cleanup(); if(data && data.error) reject(new Error(data.error)); else resolve(data); };
     const script = document.createElement("script");
     script.src = url.toString();
-    script.onerror = () => { cleanup(); reject(new Error("스크립트 로드 실패 (네트워크 또는 배포 URL 확인 필요)")); };
+    script.onerror = () => { cleanup(); reject(new Error("스크립트 로드 실패")); };
     document.body.appendChild(script);
   });
 }
 
-// 간헐적 실패(네트워크 순단, Apps Script 콜드 스타트 등) 대응 — 최대 3회까지 자동 재시도
 async function apiFetch(action, params, attempt=1){
-  const MAX_ATTEMPTS = 3;
-  try {
-    return await apiFetchOnce(action, params);
-  } catch(err){
-    if(attempt < MAX_ATTEMPTS){
-      await new Promise(res => setTimeout(res, 700 * attempt));
-      return apiFetch(action, params, attempt + 1);
-    }
+  try { return await apiFetchOnce(action, params); }
+  catch(err){
+    if(attempt < 3){ await new Promise(res => setTimeout(res, 700*attempt)); return apiFetch(action, params, attempt+1); }
     throw err;
   }
 }
 
-// 현재 필터 기준으로 필요한 데이터를 불러와 캐시에 저장
-let cache = { adReport: [], adOutstanding: [], adLabFee: [], subReport: [], subOutstanding: [] };
+let cache = { adReport:[], adOutstanding:[], adLabFee:[], subReport:[], subOutstanding:[] };
 
 async function loadData(forceRefresh){
   const {type, year, month, channel} = getState();
   setStatus("loading");
-
   try {
     if(type === "ad"){
       const params = {year, month, channel};
       if(forceRefresh) params.refresh = 1;
       const data = await apiFetch("adDashboard", params);
-      cache.adReport = data.reportRows || [];
-      cache.adOutstanding = data.outstandingRows || [];
-      cache.adLabFee = data.labPayments || [];
+      // ★ 숫자 필드 안전하게 변환
+      cache.adReport = (data.reportRows||[]).map(r=>({
+        ...r,
+        amount:    toNum(r.amount),
+        agencyFee: toNum(r.agencyFee),
+        depAmount: toNum(r.depAmount),
+        labFee:    toNum(r.labFee),
+        pay1Amt:   toNum(r.pay1Amt),
+        pay2Amt:   toNum(r.pay2Amt),
+      }));
+      cache.adOutstanding = data.outstandingRows||[];
+      cache.adLabFee = (data.labPayments||[]).map(r=>({
+        ...r,
+        amount: toNum(r.amount),
+      }));
     } else {
       const params = {year, month, channel};
       if(forceRefresh) params.refresh = 1;
       const data = await apiFetch("subDashboard", params);
-      cache.subReport = data.reportRows || [];
-      cache.subOutstanding = data.outstandingRows || [];
+      cache.subReport = data.reportRows||[];
+      cache.subOutstanding = data.outstandingRows||[];
     }
     setStatus("ok");
     showError(null);
@@ -347,80 +274,57 @@ async function loadData(forceRefresh){
 function setStatus(state){
   const dot = document.getElementById("statusDot");
   const text = document.getElementById("statusText");
-  dot.className = "dot" + (state==="loading" ? " loading" : state==="error" ? " error" : "");
+  dot.className = "dot"+(state==="loading"?" loading":state==="error"?" error":"");
   const now = new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"});
-  text.textContent = state==="loading" ? "불러오는 중…" :
-                      state==="error"   ? `오류 발생 (${now})` :
-                      `마지막 갱신 ${now}`;
+  text.textContent = state==="loading"?"불러오는 중…":state==="error"?`오류 발생 (${now})`:`마지막 갱신 ${now}`;
 }
 
 function showError(msg){
-  const box = document.getElementById("errorBox");
-  box.innerHTML = msg ? `<div class="error-box">⚠ 데이터를 불러오지 못했습니다: ${msg}</div>` : "";
+  document.getElementById("errorBox").innerHTML = msg
+    ? `<div class="error-box">⚠ 데이터를 불러오지 못했습니다: ${msg}</div>` : "";
 }
 
-/* ─────────────────────────────────────────────
-   거래처별 소계를 포함한 테이블 바디 생성 헬퍼
-   ★ 거래처 소계 금액이 큰 순서(내림차순)로 그룹을 나열
-───────────────────────────────────────────── */
 function buildBrandSubtotalRows(rows, cellsFn, amountKey="amount"){
   const byBrand = new Map();
-  rows.forEach(r=>{
-    if(!byBrand.has(r.brand)) byBrand.set(r.brand, []);
-    byBrand.get(r.brand).push(r);
-  });
-
-  const groups = [...byBrand.entries()].map(([brand, list])=>({
-    brand,
-    list: [...list].sort((a,b)=> a.year-b.year || a.month-b.month),
-    total: list.reduce((s,r)=>s+(r[amountKey]||0),0),
-  })).sort((a,b)=> b.total - a.total);
-
-  let html = "";
-  groups.forEach(({brand, list, total})=>{
-    list.forEach(r=>{ html += `<tr>${cellsFn(r)}</tr>`; });
-    html += `<tr class="subtotal"><td colspan="2">${brand} 소계</td><td class="num">${won(total)}</td></tr>`;
+  rows.forEach(r=>{ if(!byBrand.has(r.brand)) byBrand.set(r.brand,[]); byBrand.get(r.brand).push(r); });
+  const groups = [...byBrand.entries()].map(([brand,list])=>({
+    brand, list:[...list].sort((a,b)=>a.year-b.year||a.month-b.month),
+    total: list.reduce((s,r)=>s+toNum(r[amountKey]),0),
+  })).sort((a,b)=>b.total-a.total);
+  let html="";
+  groups.forEach(({brand,list,total})=>{
+    list.forEach(r=>{ html+=`<tr>${cellsFn(r)}</tr>`; });
+    html+=`<tr class="subtotal"><td colspan="2">${brand} 소계</td><td class="num">${won(total)}</td></tr>`;
   });
   return html;
 }
 
-/* ══════════════════════════════════════
-   카드 렌더링
-══════════════════════════════════════ */
 async function renderMetrics(forceRefresh){
   const metricsEl = document.getElementById("metrics");
   metricsEl.innerHTML = `<div class="loading-row">불러오는 중…</div>`;
-
-  try {
-    await loadData(forceRefresh);
-  } catch(_) {
-    metricsEl.innerHTML = `<div class="loading-row">데이터를 불러오지 못했습니다. 새로고침을 눌러 다시 시도해주세요.</div>`;
-    return;
-  }
-
+  try { await loadData(forceRefresh); }
+  catch(_){ metricsEl.innerHTML=`<div class="loading-row">데이터를 불러오지 못했습니다. 새로고침을 눌러 다시 시도해주세요.</div>`; return; }
   const {type} = getState();
-  metricsEl.className = "metrics " + (type==="ad" ? "cols-4" : "cols-2");
+  metricsEl.className = "metrics "+(type==="ad"?"cols-4":"cols-2");
   metricsEl.innerHTML = type==="ad" ? adCardsHtml() : subCardsHtml();
-
   document.querySelectorAll(".metric-card").forEach(el=>{
-    el.addEventListener("click", ()=> renderDetail(el.dataset.id));
+    el.addEventListener("click", ()=>renderDetail(el.dataset.id));
   });
 }
 
 function adCardsHtml(){
   const rows = cache.adReport;
   const {year, month} = getState();
-  const totalAmount = rows.reduce((s,r)=>s+(r.amount||0),0);
-  const totalAgencyFee = rows.reduce((s,r)=>s+(r.agencyFee||0),0);
-  const totalLabFeeExec = rows.reduce((s,r)=>s+(r.labFee||0),0);
-  const totalLabFeePay = cache.adLabFee.reduce((s,r)=>s+(r.amount||0),0);
-  const outstanding = cache.adOutstanding.reduce((s,r)=>s+(r.amount||0),0);
-
+  const totalAmount      = rows.reduce((s,r)=>s+r.amount,0);
+  const totalAgencyFee   = rows.reduce((s,r)=>s+r.agencyFee,0);
+  const totalLabFeeExec  = rows.reduce((s,r)=>s+r.labFee,0);
+  const totalLabFeePay   = cache.adLabFee.reduce((s,r)=>s+r.amount,0);
+  const outstanding      = cache.adOutstanding.reduce((s,r)=>s+toNum(r.amount),0);
   const cards = [
-    {id:"ad-amount", cls:"blue", icon:"₩", label:"광고매출금액", value:totalAmount, sub:`${rows.length}건`},
-    {id:"ad-fee", cls:"amber", icon:"%", label:"대행수수료 + 랩사수수료", value:totalAgencyFee+totalLabFeeExec, sub:"대행사 + RICH/엠크로스 합산"},
-    {id:"ad-ar", cls:"red", icon:"!", label:"광고 외상매출금", value:outstanding, sub:`기준일 ${monthEndDate(year,month)} 미입금`},
-    {id:"ad-lab", cls:"purple", icon:"L", label:"미디어랩 수수료", value:totalLabFeePay, sub:`${year}년 ${month}월 지급 예정 합계`},
+    {id:"ad-amount", cls:"blue",   icon:"₩", label:"광고매출금액",           value:totalAmount,                  sub:`${rows.length}건`},
+    {id:"ad-fee",    cls:"amber",  icon:"%", label:"대행수수료 + 랩사수수료", value:totalAgencyFee+totalLabFeeExec, sub:"대행사 + RICH/엠크로스 합산"},
+    {id:"ad-ar",     cls:"red",    icon:"!", label:"광고 외상매출금",          value:outstanding,                  sub:`기준일 ${monthEndDate(year,month)} 미입금`},
+    {id:"ad-lab",    cls:"purple", icon:"L", label:"미디어랩 수수료",          value:totalLabFeePay,               sub:`${year}년 ${month}월 지급 예정 합계`},
   ];
   return cards.map(c=>simpleCardHtml(c)).join("");
 }
@@ -428,16 +332,12 @@ function adCardsHtml(){
 function subCardsHtml(){
   const rows = cache.subReport;
   const {year, month} = getState();
-  const totalAmount = rows.reduce((s,r)=>s+(r.amount||0),0);
-  const byType = TYPES.map(t => ({type:t, sum: rows.filter(r=>r.type===t).reduce((s,r)=>s+(r.amount||0),0)}));
-  const outstanding = cache.subOutstanding.reduce((s,r)=>s+(r.amount||0),0);
-
+  const totalAmount = rows.reduce((s,r)=>s+toNum(r.amount),0);
+  const byType = TYPES.map(t=>({type:t, sum:rows.filter(r=>r.type===t).reduce((s,r)=>s+toNum(r.amount),0)}));
+  const outstanding = cache.subOutstanding.reduce((s,r)=>s+toNum(r.amount),0);
   const card1 = `
     <div class="metric-card blue" data-id="sub-amount">
-      <div class="metric-top">
-        <span class="metric-label">수신료매출금액</span>
-        <span class="metric-icon">₩</span>
-      </div>
+      <div class="metric-top"><span class="metric-label">수신료매출금액</span><span class="metric-icon">₩</span></div>
       <div class="metric-value">${won(totalAmount)}<span>원</span></div>
       <div class="metric-sub">${rows.length}건 · ${year}년 ${month}월</div>
       <div class="sub-breakdown">
@@ -445,42 +345,32 @@ function subCardsHtml(){
       </div>
       <div class="go">상세 보기 →</div>
     </div>`;
-
-  const card2 = simpleCardHtml({id:"sub-ar", cls:"red", icon:"!", label:"수신료 외상매출금", value:outstanding, sub:`기준일 ${monthEndDate(year,month)} 미입금`});
-
-  return card1 + card2;
+  const card2 = simpleCardHtml({id:"sub-ar",cls:"red",icon:"!",label:"수신료 외상매출금",value:outstanding,sub:`기준일 ${monthEndDate(year,month)} 미입금`});
+  return card1+card2;
 }
 
 function simpleCardHtml(c){
   return `
     <div class="metric-card ${c.cls}" data-id="${c.id}">
-      <div class="metric-top">
-        <span class="metric-label">${c.label}</span>
-        <span class="metric-icon">${c.icon}</span>
-      </div>
+      <div class="metric-top"><span class="metric-label">${c.label}</span><span class="metric-icon">${c.icon}</span></div>
       <div class="metric-value">${won(c.value)}<span>원</span></div>
       <div class="metric-sub">${c.sub}</div>
       <div class="go">상세 보기 →</div>
     </div>`;
 }
 
-/* ══════════════════════════════════════
-   상세 화면 렌더링
-══════════════════════════════════════ */
 function renderDetail(id){
-  const {year, month, channel} = getState();
+  const {year, month} = getState();
   const panel = document.getElementById("panel");
 
   if(id==="ad-amount"){
-    const rows = [...cache.adReport].sort((a,b)=> (b.amount||0)-(a.amount||0));
-    const body = rows.map(r=>`
-      <tr>
-        <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
-        <td>${r.brand}</td>
-        <td class="num">${won(r.amount)}</td>
-      </tr>`).join("");
-    const total = rows.reduce((s,r)=>s+(r.amount||0),0);
-    panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">광고매출금액</span>`, `
+    const rows = [...cache.adReport].sort((a,b)=>b.amount-a.amount);
+    const body = rows.map(r=>`<tr>
+      <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
+      <td>${r.brand}</td><td class="num">${won(r.amount)}</td>
+    </tr>`).join("");
+    const total = rows.reduce((s,r)=>s+r.amount,0);
+    panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">광고매출금액</span>`,`
       <table>
         <thead><tr><th>채널</th><th>거래처</th><th style="text-align:right">광고매출금액</th></tr></thead>
         <tbody>${body}</tbody>
@@ -490,33 +380,29 @@ function renderDetail(id){
 
   if(id==="ad-fee"){
     const rows = cache.adReport;
-    const agencyRows = rows.filter(r=>(r.agencyFee||0) > 0).sort((a,b)=> (b.agencyFee||0)-(a.agencyFee||0));
-    const agencyBody = agencyRows.map(r=>`
-      <tr>
-        <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
-        <td>${r.brand}</td>
-        <td class="num">${won(r.agencyFee)}</td>
-      </tr>`).join("");
-    const agencyTotal = agencyRows.reduce((s,r)=>s+(r.agencyFee||0),0);
+    const agencyRows = rows.filter(r=>r.agencyFee>0).sort((a,b)=>b.agencyFee-a.agencyFee);
+    const agencyBody = agencyRows.map(r=>`<tr>
+      <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
+      <td>${r.brand}</td><td class="num">${won(r.agencyFee)}</td>
+    </tr>`).join("");
+    const agencyTotal = agencyRows.reduce((s,r)=>s+r.agencyFee,0);
 
     const labMap = new Map();
     rows.forEach(r=>{
-      if(!r.lab || r.lab === "-" || !r.labFee) return;
-      const key = `${r.channel}||${r.lab}`;
+      if(!r.lab || r.lab==="-" || !r.labFee) return;
+      const key=`${r.channel}||${r.lab}`;
       labMap.set(key,(labMap.get(key)||0)+r.labFee);
     });
     const labEntries = [...labMap.entries()]
       .map(([key,sum])=>{ const [ch,lab]=key.split("||"); return {ch,lab,sum}; })
-      .sort((a,b)=> b.sum - a.sum);
-    const labBody = labEntries.map(e=>`
-      <tr>
-        <td><span class="chip chip-${e.ch}">${e.ch}</span></td>
-        <td>${e.lab}</td>
-        <td class="num">${won(e.sum)}</td>
-      </tr>`).join("");
+      .sort((a,b)=>b.sum-a.sum);
+    const labBody = labEntries.map(e=>`<tr>
+      <td><span class="chip chip-${e.ch}">${e.ch}</span></td>
+      <td>${e.lab}</td><td class="num">${won(e.sum)}</td>
+    </tr>`).join("");
     const labTotal = labEntries.reduce((s,e)=>s+e.sum,0);
 
-    panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">수수료</span>`, `
+    panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">수수료</span>`,`
       <div class="section-label">대행수수료</div>
       <table>
         <thead><tr><th>채널</th><th>거래처</th><th style="text-align:right">대행수수료</th></tr></thead>
@@ -525,7 +411,7 @@ function renderDetail(id){
       </table>
       <div class="section-label">랩사수수료 (채널별 합계)</div>
       <table>
-        <thead><tr><th>채널</th><th>거래처</th><th style="text-align:right">랩사수수료</th></tr></thead>
+        <thead><tr><th>채널</th><th>랩사</th><th style="text-align:right">랩사수수료</th></tr></thead>
         <tbody>${labBody}</tbody>
         <tfoot><tr><td colspan="2">합계</td><td class="num">${won(labTotal)}</td></tr></tfoot>
       </table>`);
@@ -534,12 +420,12 @@ function renderDetail(id){
   if(id==="ad-ar"){
     const out = cache.adOutstanding;
     const body = out.length ? buildBrandSubtotalRows(out, r=>`
-        <td>${r.year}.${String(r.month).padStart(2,"0")}</td>
-        <td>${r.brand}</td>
-        <td class="num" style="color:var(--red);font-weight:700">${won(r.amount)}</td>`)
+      <td>${r.year}.${String(r.month).padStart(2,"0")}</td>
+      <td>${r.brand}</td>
+      <td class="num" style="color:var(--red);font-weight:700">${won(r.amount)}</td>`)
       : `<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:24px 0">미입금 채권이 없습니다</td></tr>`;
-    const total = out.reduce((s,r)=>s+(r.amount||0),0);
-    panel.innerHTML = wrap(`기준일 ${monthEndDate(year,month)} 외상매출금 상세 <span class="tag">기간 상세 · 거래처별 소계</span>`, `
+    const total = out.reduce((s,r)=>s+toNum(r.amount),0);
+    panel.innerHTML = wrap(`기준일 ${monthEndDate(year,month)} 외상매출금 상세 <span class="tag">기간 상세 · 거래처별 소계</span>`,`
       <table>
         <thead><tr><th>매출월</th><th>거래처</th><th style="text-align:right">외상매출금</th></tr></thead>
         <tbody>${body}</tbody>
@@ -556,23 +442,24 @@ function renderDetail(id){
       stageOrder.indexOf(a.stage)-stageOrder.indexOf(b.stage) ||
       (b.amount-a.amount)
     );
-
-    let body = "";
+    let body="";
     LAB_ORDER.forEach(lab=>{
       const group = items.filter(i=>i.lab===lab);
       if(!group.length) return;
       group.forEach(i=>{
-        body += `<tr>
+        // ★ payDate: ISO문자열 또는 Date 객체 모두 fmtKDate로 처리
+        const payDateStr = i.payDate ? fmtKDate(i.payDate) : "";
+        body+=`<tr>
           <td>${i.lab}</td><td>${i.execMonth}</td><td>${i.brand}</td><td>${i.payMethod}</td>
           <td class="num">${won(i.amount)}</td>
-          <td><span class="chip chip-p${i.stage==="1차"?1:2}">${i.stage}${i.payDate ? "("+i.payDate+")" : ""}</span></td>
+          <td><span class="chip chip-p${i.stage==="1차"?1:2}">${i.stage}${payDateStr?"("+payDateStr+")":""}</span></td>
         </tr>`;
       });
       const subtotal = group.reduce((s,i)=>s+i.amount,0);
-      body += `<tr class="subtotal"><td colspan="4">${lab} 소계</td><td class="num">${won(subtotal)}</td><td></td></tr>`;
+      body+=`<tr class="subtotal"><td colspan="4">${lab} 소계</td><td class="num">${won(subtotal)}</td><td></td></tr>`;
     });
     const total = items.reduce((s,i)=>s+i.amount,0);
-    panel.innerHTML = wrap(`${year}년 ${month}월 지급 미디어랩 수수료 상세 <span class="tag">지급월 기준 · 랩사/지급방식별 정렬</span>`, `
+    panel.innerHTML = wrap(`${year}년 ${month}월 지급 미디어랩 수수료 상세 <span class="tag">지급월 기준 · 랩사/지급방식별 정렬</span>`,`
       <table>
         <thead><tr><th>랩사</th><th>집행월</th><th>거래처</th><th>지급방식</th><th style="text-align:right">지급액</th><th>지급방법</th></tr></thead>
         <tbody>${body}</tbody>
@@ -581,32 +468,23 @@ function renderDetail(id){
   }
 
   if(id==="sub-amount"){
-    let body = "";
+    let body="";
     TYPES.forEach(type=>{
       const groupAll = cache.subReport.filter(r=>r.type===type);
       if(!groupAll.length) return;
-
-      const ordered = [];
-      CHANNEL_ORDER.forEach(ch=>{
-        ordered.push(...groupAll.filter(r=>r.channel===ch).sort((a,b)=> (b.amount||0)-(a.amount||0)));
-      });
-      // CHANNEL_ORDER에 없는 채널이 있으면 마지막에 금액 내림차순으로 추가
-      ordered.push(...groupAll.filter(r=>!CHANNEL_ORDER.includes(r.channel)).sort((a,b)=> (b.amount||0)-(a.amount||0)));
-
-      ordered.forEach(r=>{
-        body += `<tr>
-          <td><span class="chip chip-${type}">${type}</span></td>
-          <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
-          <td>${r.brand}</td>
-          <td class="num">${won(r.amount)}</td>
-        </tr>`;
-      });
-      const subtotal = ordered.reduce((s,r)=>s+(r.amount||0),0);
-      body += `<tr class="subtotal"><td colspan="3">${type} 소계</td><td class="num">${won(subtotal)}</td></tr>`;
+      const ordered=[];
+      CHANNEL_ORDER.forEach(ch=>{ ordered.push(...groupAll.filter(r=>r.channel===ch).sort((a,b)=>toNum(b.amount)-toNum(a.amount))); });
+      ordered.push(...groupAll.filter(r=>!CHANNEL_ORDER.includes(r.channel)).sort((a,b)=>toNum(b.amount)-toNum(a.amount)));
+      ordered.forEach(r=>{ body+=`<tr>
+        <td><span class="chip chip-${type}">${type}</span></td>
+        <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
+        <td>${r.brand}</td><td class="num">${won(r.amount)}</td>
+      </tr>`; });
+      const subtotal = ordered.reduce((s,r)=>s+toNum(r.amount),0);
+      body+=`<tr class="subtotal"><td colspan="3">${type} 소계</td><td class="num">${won(subtotal)}</td></tr>`;
     });
-
-    const total = cache.subReport.reduce((s,r)=>s+(r.amount||0),0);
-    panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">수신료매출금액 · 유형/채널별 정렬</span>`, `
+    const total = cache.subReport.reduce((s,r)=>s+toNum(r.amount),0);
+    panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">수신료매출금액 · 유형/채널별 정렬</span>`,`
       <table>
         <thead><tr><th>유형</th><th>채널</th><th>거래처</th><th style="text-align:right">매출금액</th></tr></thead>
         <tbody>${body}</tbody>
@@ -617,12 +495,12 @@ function renderDetail(id){
   if(id==="sub-ar"){
     const out = cache.subOutstanding;
     const body = out.length ? buildBrandSubtotalRows(out, r=>`
-        <td>${r.year}.${String(r.month).padStart(2,"0")}</td>
-        <td>${r.brand}</td>
-        <td class="num" style="color:var(--red);font-weight:700">${won(r.amount)}</td>`)
+      <td>${r.year}.${String(r.month).padStart(2,"0")}</td>
+      <td>${r.brand}</td>
+      <td class="num" style="color:var(--red);font-weight:700">${won(r.amount)}</td>`)
       : `<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:24px 0">미입금 채권이 없습니다</td></tr>`;
-    const total = out.reduce((s,r)=>s+(r.amount||0),0);
-    panel.innerHTML = wrap(`기준일 ${monthEndDate(year,month)} 외상매출금 상세 <span class="tag">기간 상세 · 거래처별 소계</span>`, `
+    const total = out.reduce((s,r)=>s+toNum(r.amount),0);
+    panel.innerHTML = wrap(`기준일 ${monthEndDate(year,month)} 외상매출금 상세 <span class="tag">기간 상세 · 거래처별 소계</span>`,`
       <table>
         <thead><tr><th>매출월</th><th>거래처</th><th style="text-align:right">외상매출금</th></tr></thead>
         <tbody>${body}</tbody>
@@ -636,12 +514,11 @@ function wrap(title, tableHtml){
     <div class="panel-header">
       <div class="panel-title">${title}</div>
       <div class="back-btn" onclick="resetPanel()">← 카드로 돌아가기</div>
-    </div>
-    ${tableHtml}`;
+    </div>${tableHtml}`;
 }
 
 function resetPanel(){
-  document.getElementById("panel").innerHTML = `
+  document.getElementById("panel").innerHTML=`
     <div class="panel-empty">
       <div class="big">위 카드를 클릭하면 상세 내역이 여기에 표시됩니다</div>
       <div class="small">거래구분을 선택한 뒤 카드를 클릭하세요</div>
@@ -649,17 +526,9 @@ function resetPanel(){
 }
 
 ["fType","fYear","fMonth","fChannel"].forEach(id=>{
-  document.getElementById(id).addEventListener("change", ()=>{
-    resetPanel();
-    renderMetrics();
-  });
+  document.getElementById(id).addEventListener("change", ()=>{ resetPanel(); renderMetrics(); });
 });
-
-document.getElementById("refreshBtn").addEventListener("click", ()=>{
-  resetPanel();
-  renderMetrics(true);   // 새로고침 버튼 → 캐시 무시하고 시트 강제 재조회
-});
-
+document.getElementById("refreshBtn").addEventListener("click", ()=>{ resetPanel(); renderMetrics(true); });
 renderMetrics();
 </script>
 </body>
