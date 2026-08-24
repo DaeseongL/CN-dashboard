@@ -450,20 +450,20 @@ function renderDetail(id){
         // ★ payDate: ISO문자열 또는 Date 객체 모두 fmtKDate로 처리
         const payDateStr = i.payDate ? fmtKDate(i.payDate) : "";
         body+=`<tr>
-          <td>${i.lab}</td><td>${i.execMonth}</td><td>${i.brand}</td><td>${i.payMethod}</td>
+          <td>${i.lab}</td><td>${i.execMonth}</td><td>${i.brand}</td>
           <td class="num">${won(i.amount)}</td>
           <td><span class="chip chip-p${i.stage==="1차"?1:2}">${i.stage}${payDateStr?"("+payDateStr+")":""}</span></td>
         </tr>`;
       });
       const subtotal = group.reduce((s,i)=>s+i.amount,0);
-      body+=`<tr class="subtotal"><td colspan="4">${lab} 소계</td><td class="num">${won(subtotal)}</td><td></td></tr>`;
+      body+=`<tr class="subtotal"><td colspan="3">${lab} 소계</td><td class="num">${won(subtotal)}</td><td></td></tr>`;
     });
     const total = items.reduce((s,i)=>s+i.amount,0);
     panel.innerHTML = wrap(`${year}년 ${month}월 지급 미디어랩 수수료 상세 <span class="tag">지급월 기준 · 랩사/지급방식별 정렬</span>`,`
       <table>
-        <thead><tr><th>랩사</th><th>집행월</th><th>거래처</th><th>지급방식</th><th style="text-align:right">지급액</th><th>지급방법</th></tr></thead>
+        <thead><tr><th>랩사</th><th>집행월</th><th>거래처</th><th style="text-align:right">지급액</th><th>지급방법</th></tr></thead>
         <tbody>${body}</tbody>
-        <tfoot><tr><td colspan="4">총 합계</td><td class="num">${won(total)}</td><td></td></tr></tfoot>
+        <tfoot><tr><td colspan="3">총 합계</td><td class="num">${won(total)}</td><td></td></tr></tfoot>
       </table>`);
   }
 
