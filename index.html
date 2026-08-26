@@ -212,7 +212,7 @@ function apiFetchOnce(action, params){
     url.searchParams.set("action", action);
     Object.entries(params||{}).forEach(([k,v]) => url.searchParams.set(k, v));
     url.searchParams.set("callback", cbName);
-    const timer = setTimeout(() => { cleanup(); reject(new Error("요청 시간 초과")); }, 600000);
+    const timer = setTimeout(() => { cleanup(); reject(new Error("요청 시간 초과")); }, 30000);
     function cleanup(){ clearTimeout(timer); delete window[cbName]; if(script.parentNode) script.parentNode.removeChild(script); }
     window[cbName] = (data) => { cleanup(); if(data && data.error) reject(new Error(data.error)); else resolve(data); };
     const script = document.createElement("script");
@@ -230,7 +230,7 @@ async function apiFetch(action, params, attempt=1){
   }
 }
 
-let cache = { adReport:[], adOutstanding:[], adLabFee:[], subReport:[], subOutstanding:[] };
+let cache = { adReport:[], adOutstanding:[], adBillRows:[], adLabFee:[], subReport:[], subOutstanding:[] };
 
 async function loadData(forceRefresh){
   const {type, year, month, channel} = getState();
@@ -251,6 +251,7 @@ async function loadData(forceRefresh){
         pay2Amt:   toNum(r.pay2Amt),
       }));
       cache.adOutstanding = data.outstandingRows||[];
+      cache.adBillRows    = data.billRows||[];
       cache.adLabFee = (data.labPayments||[]).map(r=>({
         ...r,
         amount: toNum(r.amount),
@@ -323,7 +324,9 @@ function adCardsHtml(){
   const cards = [
     {id:"ad-amount", cls:"blue",   icon:"₩", label:"광고매출금액",           value:totalAmount,                  sub:`${rows.length}건`},
     {id:"ad-fee",    cls:"amber",  icon:"%", label:"대행수수료 + 랩사수수료", value:totalAgencyFee+totalLabFeeExec, sub:"대행사 + RICH/엠크로스 합산"},
-    {id:"ad-ar",     cls:"red",    icon:"!", label:"광고 외상매출금",          value:outstanding,                  sub:`기준일 ${monthEndDate(year,month)} 미입금`},
+    {id:"ad-ar",     cls:"red",    icon:"!", label:"광고 외상매출금 / 받을어음",
+      value:outstanding, value2: billTotal,
+      sub:`기준일 ${monthEndDate(year,month)}`},
     {id:"ad-lab",    cls:"purple", icon:"L", label:"미디어랩 수수료",          value:totalLabFeePay,               sub:`${year}년 ${month}월 지급 예정 합계`},
   ];
   return cards.map(c=>simpleCardHtml(c)).join("");
@@ -350,10 +353,14 @@ function subCardsHtml(){
 }
 
 function simpleCardHtml(c){
+  const val2 = c.value2 !== undefined
+    ? `<div style="margin-top:6px;font-size:13px;color:var(--text-secondary)">받을어음 ${won(c.value2)}원</div>`
+    : "";
   return `
     <div class="metric-card ${c.cls}" data-id="${c.id}">
       <div class="metric-top"><span class="metric-label">${c.label}</span><span class="metric-icon">${c.icon}</span></div>
       <div class="metric-value">${won(c.value)}<span>원</span></div>
+      ${val2}
       <div class="metric-sub">${c.sub}</div>
       <div class="go">상세 보기 →</div>
     </div>`;
@@ -418,18 +425,63 @@ function renderDetail(id){
   }
 
   if(id==="ad-ar"){
-    const out = cache.adOutstanding;
-    const body = out.length ? buildBrandSubtotalRows(out, r=>`
-      <td>${r.year}.${String(r.month).padStart(2,"0")}</td>
-      <td>${r.brand}</td>
-      <td class="num" style="color:var(--red);font-weight:700">${won(r.amount)}</td>`)
-      : `<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:24px 0">미입금 채권이 없습니다</td></tr>`;
-    const total = out.reduce((s,r)=>s+toNum(r.amount),0);
-    panel.innerHTML = wrap(`기준일 ${monthEndDate(year,month)} 외상매출금 상세 <span class="tag">기간 상세 · 거래처별 소계</span>`,`
+    const {year, month} = getState();
+    const baseLabel = monthEndDate(year, month);
+
+    // ★ 외상매출금 상세 (현금+어음 합산, 홈택스명 기준)
+    const outRows = cache.adOutstanding;
+    let arBody = "";
+    let arTotal = 0;
+    outRows.forEach(entry => {
+      entry.details.forEach((d, di) => {
+        const ym = `${d.year}.${String(d.month).padStart(2,"0")}`;
+        arBody += `<tr>
+          <td>${di===0 ? entry.brand : ""}</td>
+          <td style="color:var(--muted)">${ym}</td>
+          <td class="num">${won(d.outstanding)}</td>
+        </tr>`;
+      });
+      arBody += `<tr class="subtotal">
+        <td colspan="2">${entry.brand} 소계</td>
+        <td class="num">${won(entry.outstanding)}</td>
+      </tr>`;
+      arTotal += toNum(entry.outstanding);
+    });
+    if (!arBody) arBody = `<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:24px 0">외상매출금 없음</td></tr>`;
+
+    // ★ 받을어음 상세 (대행사별)
+    const billRows = cache.adBillRows;
+    let billBody = "";
+    let billTotal = 0;
+    billRows.forEach(b => {
+      b.details.forEach((d, di) => {
+        const ym = `${d.year}.${String(d.month).padStart(2,"0")}`;
+        billBody += `<tr>
+          <td>${di===0 ? b.agency : ""}</td>
+          <td style="color:var(--muted)">${ym}</td>
+          <td class="num">${won(d.billTotal)}</td>
+        </tr>`;
+      });
+      billBody += `<tr class="subtotal">
+        <td colspan="2">${b.agency} 합계</td>
+        <td class="num">${won(b.total)}</td>
+      </tr>`;
+      billTotal += toNum(b.total);
+    });
+    if (!billBody) billBody = `<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:24px 0">받을어음 없음</td></tr>`;
+
+    panel.innerHTML = wrap(`기준일 ${baseLabel} 외상매출금 / 받을어음 <span class="tag">거래처별 소계</span>`,`
+      <div class="section-label">기준일 ${baseLabel} 외상매출금 상세</div>
       <table>
-        <thead><tr><th>매출월</th><th>거래처</th><th style="text-align:right">외상매출금</th></tr></thead>
-        <tbody>${body}</tbody>
-        <tfoot><tr><td colspan="2">총 합계</td><td class="num">${won(total)}</td></tr></tfoot>
+        <thead><tr><th>거래처</th><th>매출월</th><th style="text-align:right">외상매출금</th></tr></thead>
+        <tbody>${arBody}</tbody>
+        <tfoot><tr><td colspan="2">총 합계</td><td class="num">${won(arTotal)}</td></tr></tfoot>
+      </table>
+      <div class="section-label" style="margin-top:20px">기준일 ${baseLabel} 받을어음 상세</div>
+      <table>
+        <thead><tr><th>대행사</th><th>매출월</th><th style="text-align:right">받을어음 잔액</th></tr></thead>
+        <tbody>${billBody}</tbody>
+        <tfoot><tr><td colspan="2">총 합계</td><td class="num">${won(billTotal)}</td></tr></tfoot>
       </table>`);
   }
 
