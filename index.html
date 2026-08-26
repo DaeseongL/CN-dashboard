@@ -320,7 +320,8 @@ function adCardsHtml(){
   const totalAgencyFee   = rows.reduce((s,r)=>s+r.agencyFee,0);
   const totalLabFeeExec  = rows.reduce((s,r)=>s+r.labFee,0);
   const totalLabFeePay   = cache.adLabFee.reduce((s,r)=>s+r.amount,0);
-  const outstanding      = cache.adOutstanding.reduce((s,r)=>s+toNum(r.amount),0);
+  const outstanding = cache.adOutstanding.reduce((s,r)=>s+toNum(r.outstanding),0);
+  const billTotal   = (cache.adBillRows||[]).reduce((s,r)=>s+toNum(r.total),0);
   const cards = [
     {id:"ad-amount", cls:"blue",   icon:"₩", label:"광고매출금액",           value:totalAmount,                  sub:`${rows.length}건`},
     {id:"ad-fee",    cls:"amber",  icon:"%", label:"대행수수료 + 랩사수수료", value:totalAgencyFee+totalLabFeeExec, sub:"대행사 + RICH/엠크로스 합산"},
