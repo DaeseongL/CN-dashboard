@@ -316,14 +316,18 @@ async function renderMetrics(forceRefresh){
 function adCardsHtml(){
   const rows = cache.adReport;
   const {year, month} = getState();
-  const totalAmount      = rows.reduce((s,r)=>s+r.amount,0);
+  // ★ 인포 분리
+  const infoRows  = rows.filter(r => r.brand && r.brand.includes("씨엔티브이플러스") && r.brand.includes("인포"));
+  const adRows    = rows.filter(r => !r.brand || !r.brand.includes("인포") || !r.brand.includes("씨엔티브이플러스"));
+  const totalAmount      = adRows.reduce((s,r)=>s+r.amount,0);
+  const infoAmount       = infoRows.reduce((s,r)=>s+r.amount,0);
   const totalAgencyFee   = rows.reduce((s,r)=>s+r.agencyFee,0);
   const totalLabFeeExec  = rows.reduce((s,r)=>s+r.labFee,0);
   const totalLabFeePay   = cache.adLabFee.reduce((s,r)=>s+r.amount,0);
   const outstanding = cache.adOutstanding.reduce((s,r)=>s+toNum(r.outstanding),0);
   const billTotal   = (cache.adBillRows||[]).reduce((s,r)=>s+toNum(r.total),0);
   const cards = [
-    {id:"ad-amount", cls:"blue",   icon:"₩", label:"광고매출금액",           value:totalAmount,                  sub:`${rows.length}건`},
+    {id:"ad-amount", cls:"blue",   icon:"₩", label:"광고매출금액", value:totalAmount, infoValue:infoAmount, sub:`${adRows.length}건`},
     {id:"ad-fee",    cls:"amber",  icon:"%", label:"대행수수료 + 랩사수수료", value:totalAgencyFee+totalLabFeeExec, sub:"대행사 + RICH/엠크로스 합산"},
     {id:"ad-ar",     cls:"red",    icon:"!", label:"광고 외상매출금 / 받을어음",
       value:outstanding, value2: billTotal,
@@ -357,10 +361,14 @@ function simpleCardHtml(c){
   const val2 = c.value2 !== undefined
     ? `<div style="margin-top:6px;font-size:13px;color:var(--text-secondary)">받을어음 ${won(c.value2)}원</div>`
     : "";
+  const infoVal = c.infoValue !== undefined
+    ? `<div style="margin-top:6px;font-size:13px;color:var(--text-secondary)">인포광고금액 ${won(c.infoValue)}원</div>`
+    : "";
   return `
     <div class="metric-card ${c.cls}" data-id="${c.id}">
       <div class="metric-top"><span class="metric-label">${c.label}</span><span class="metric-icon">${c.icon}</span></div>
       <div class="metric-value">${won(c.value)}<span>원</span></div>
+      ${infoVal}
       ${val2}
       <div class="metric-sub">${c.sub}</div>
       <div class="go">상세 보기 →</div>
@@ -372,17 +380,28 @@ function renderDetail(id){
   const panel = document.getElementById("panel");
 
   if(id==="ad-amount"){
-    const rows = [...cache.adReport].sort((a,b)=>b.amount-a.amount);
-    const body = rows.map(r=>`<tr>
+    const allRows = cache.adReport;
+    const adOnlyRows = [...allRows.filter(r => !r.brand || !r.brand.includes("인포") || !r.brand.includes("씨엔티브이플러스"))].sort((a,b)=>b.amount-a.amount);
+    const infoOnlyRows = allRows.filter(r => r.brand && r.brand.includes("씨엔티브이플러스") && r.brand.includes("인포"));
+    const adTotal   = adOnlyRows.reduce((s,r)=>s+r.amount,0);
+    const infoTotal = infoOnlyRows.reduce((s,r)=>s+r.amount,0);
+    const body = adOnlyRows.map(r=>`<tr>
       <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
       <td>${r.brand}</td><td class="num">${won(r.amount)}</td>
     </tr>`).join("");
-    const total = rows.reduce((s,r)=>s+r.amount,0);
+    const infoBody = infoOnlyRows.length > 0 ? `
+      <tr style="background:#ede7f6">
+        <td colspan="2" style="font-weight:bold;color:#6a1b9a">씨엔티브이플러스(인포) 합계</td>
+        <td class="num" style="font-weight:bold;color:#6a1b9a">${won(infoTotal)}</td>
+      </tr>` : "";
     panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">광고매출금액</span>`,`
       <table>
         <thead><tr><th>채널</th><th>거래처</th><th style="text-align:right">광고매출금액</th></tr></thead>
         <tbody>${body}</tbody>
-        <tfoot><tr><td colspan="2">합계</td><td class="num">${won(total)}</td></tr></tfoot>
+        <tfoot>
+          <tr><td colspan="2">합계</td><td class="num">${won(adTotal)}</td></tr>
+          ${infoBody}
+        </tfoot>
       </table>`);
   }
 
