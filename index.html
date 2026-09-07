@@ -173,6 +173,12 @@ const toNum = v => {
 };
 const won = n => Math.round(toNum(n)).toLocaleString("ko-KR");
 
+  // ★ 공급가액/부가세 역산
+  const ZERO_TAX_BRANDS = ["하리보"];
+  const isZeroTax = brand => ZERO_TAX_BRANDS.some(b => (brand||"").includes(b));
+  const supplyAmt = (amount, brand) => isZeroTax(brand) ? Math.round(amount) : Math.round(amount / 1.1);
+  const vatAmt    = (amount, brand) => isZeroTax(brand) ? 0 : amount - supplyAmt(amount, brand);
+
 const TYPES = ["IPTV","SO","위성","기타(그 외)"];
 const CHANNEL_ORDER = ["CN","CC","CA"];
 const LAB_ORDER = ["RICH","엠크로스"];
@@ -323,16 +329,25 @@ function adCardsHtml(){
   const infoAmount       = infoRows.reduce((s,r)=>s+r.amount,0);
   const totalAgencyFee   = rows.reduce((s,r)=>s+r.agencyFee,0);
   const totalLabFeeExec  = rows.reduce((s,r)=>s+r.labFee,0);
+
+  // ★ 공급가액/부가세 계산
+  const adSupply   = adRows.reduce((s,r)=>s+supplyAmt(r.amount, r.brand),0);
+  const adVat      = totalAmount - adSupply;
+  const infoSupply = infoRows.reduce((s,r)=>s+supplyAmt(r.amount, r.brand),0);
+  const infoVat    = infoAmount - infoSupply;
+  const feeTotal   = totalAgencyFee + totalLabFeeExec;
+  const feeSupply  = rows.reduce((s,r)=>s+supplyAmt(r.agencyFee+r.labFee, r.brand),0);
+  const feeVat     = feeTotal - feeSupply;
   const totalLabFeePay   = cache.adLabFee.reduce((s,r)=>s+r.amount,0);
   const outstanding = cache.adOutstanding.reduce((s,r)=>s+toNum(r.outstanding),0);
   const billTotal   = (cache.adBillRows||[]).reduce((s,r)=>s+toNum(r.total),0);
   const cards = [
-    {id:"ad-amount", cls:"blue",   icon:"₩", label:"광고매출금액", value:totalAmount, value2:infoAmount, sub:`${adRows.length}건`},
-    {id:"ad-fee",    cls:"amber",  icon:"%", label:"대행수수료 + 랩사수수료", value:totalAgencyFee+totalLabFeeExec, sub:"대행사 + RICH/엠크로스 합산"},
-    {id:"ad-ar",     cls:"red",    icon:"!", label:"광고 외상매출금 / 받을어음",
+    {id:"ad-amount", cls:"blue",   icon:"₩", label:"광고매출금액", value:adSupply, value2:infoSupply, sub:`${adRows.length}건`},
+    {id:"ad-fee",    cls:"amber",  icon:"%", label:"대행수수료 + 랩사수수료", value:feeSupply, sub:"공급가액"},
+    {id:"ad-ar",     cls:"red",    icon:"!", label:"광고 외상매출금 / 받을어음 (VAT포함)",
       value:outstanding, value2: billTotal,
       sub:`기준일 ${monthEndDate(year,month)}`},
-    {id:"ad-lab",    cls:"purple", icon:"L", label:"미디어랩 수수료",          value:totalLabFeePay,               sub:`${year}년 ${month}월 지급 예정 합계`},
+    {id:"ad-lab",    cls:"purple", icon:"L", label:"미디어랩 수수료 (VAT포함)",          value:totalLabFeePay,               sub:`${year}년 ${month}월 지급 예정 합계`},
   ];
   return cards.map(c=>simpleCardHtml(c)).join("");
 }
@@ -358,19 +373,19 @@ function subCardsHtml(){
 }
 
 function simpleCardHtml(c){
-  const val2 = c.id === "ad-amount" && c.value2 !== undefined
-    ? `<div style="margin-top:6px;font-size:13px;color:var(--text-secondary)">인포광고금액 ${won(c.value2)}원</div>`
-    : c.value2 !== undefined
+  const val2 = c.id === "ad-outstanding" && c.value2 !== undefined
     ? `<div style="margin-top:6px;font-size:13px;color:var(--text-secondary)">받을어음 ${won(c.value2)}원</div>`
     : "";
-  const infoVal = "";
+  const infoVal = c.id === "ad-amount" && c.value2 !== undefined
+    ? `<div style="margin-top:4px;font-size:13px;color:var(--text-secondary)">인포광고금액 ${won(c.value2)}원</div>`
+    : "";
   return `
     <div class="metric-card ${c.cls}" data-id="${c.id}">
       <div class="metric-top"><span class="metric-label">${c.label}</span><span class="metric-icon">${c.icon}</span></div>
       <div class="metric-value">${won(c.value)}<span>원</span></div>
       ${infoVal}
       ${val2}
-      <div class="metric-sub">${c.sub}</div>
+      <div class="metric-sub">${c.sub||""}</div>
       <div class="go">상세 보기 →</div>
     </div>`;
 }
@@ -381,74 +396,99 @@ function renderDetail(id){
 
   if(id==="ad-amount"){
     const allRows = cache.adReport;
+    const chOrder = {"CN":0,"CC":1,"CA":2};
+    const vatTh = `<th style="text-align:right">공급가액</th><th style="text-align:right">부가세</th><th style="text-align:right">합계</th>`;
+    const vatRow = (amount, brand) => {
+      const s = supplyAmt(amount, brand);
+      const v = vatAmt(amount, brand);
+      return `<td class="num">${won(s)}</td><td class="num">${won(v)}</td><td class="num">${won(amount)}</td>`;
+    };
+    const vatFoot = (rows, amtFn, brandFn) => {
+      const total = rows.reduce((s,r)=>s+(amtFn?amtFn(r):r.amount),0);
+      const s = rows.reduce((sum,r)=>sum+supplyAmt(amtFn?amtFn(r):r.amount, brandFn?brandFn(r):r.brand),0);
+      const v = total - s;
+      return `<td class="num">${won(s)}</td><td class="num">${won(v)}</td><td class="num">${won(total)}</td>`;
+    };
+
     // 일반 광고
     const adOnlyRows = [...allRows.filter(r => !r.brand || !r.brand.includes("인포") || !r.brand.includes("씨엔티브이플러스"))].sort((a,b)=>b.amount-a.amount);
-    const adTotal = adOnlyRows.reduce((s,r)=>s+r.amount,0);
     const adBody = adOnlyRows.map(r=>`<tr>
       <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
-      <td>${r.brand}</td><td class="num">${won(r.amount)}</td>
+      <td>${r.brand}</td>${vatRow(r.amount, r.brand)}
     </tr>`).join("");
+
     // 인포
-    const chOrder = {"CN":0,"CC":1,"CA":2};
     const infoOnlyRows = [...allRows.filter(r => r.brand && r.brand.includes("씨엔티브이플러스") && r.brand.includes("인포"))].sort((a,b)=>(chOrder[a.channel]??9)-(chOrder[b.channel]??9));
-    const infoTotal = infoOnlyRows.reduce((s,r)=>s+r.amount,0);
     const infoBody = infoOnlyRows.map(r=>`<tr>
       <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
-      <td>${r.brand}</td><td class="num">${won(r.amount)}</td>
+      <td>${r.brand}</td>${vatRow(r.amount, r.brand)}
     </tr>`).join("");
     const infoSection = infoOnlyRows.length > 0 ? `
-      <br>
+      <div class="section-label" style="margin-top:16px">인포광고금액</div>
       <table>
-        <thead><tr><th>채널</th><th>거래처</th><th style="text-align:right">광고매출금액</th></tr></thead>
+        <thead><tr><th>채널</th><th>거래처</th>${vatTh}</tr></thead>
         <tbody>${infoBody}</tbody>
-        <tfoot><tr><td colspan="2">인포 합계</td><td class="num">${won(infoTotal)}</td></tr></tfoot>
-      </table>
-    ` : "";
+        <tfoot><tr><td colspan="2">합계</td>${vatFoot(infoOnlyRows)}</tr></tfoot>
+      </table>` : "";
+
     panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">광고매출금액</span>`,`
+      <div class="section-label">광고매출금액</div>
       <table>
-        <thead><tr><th>채널</th><th>거래처</th><th style="text-align:right">광고매출금액</th></tr></thead>
+        <thead><tr><th>채널</th><th>거래처</th>${vatTh}</tr></thead>
         <tbody>${adBody}</tbody>
-        <tfoot><tr><td colspan="2">합계</td><td class="num">${won(adTotal)}</td></tr></tfoot>
+        <tfoot><tr><td colspan="2">합계</td>${vatFoot(adOnlyRows)}</tr></tfoot>
       </table>
       ${infoSection}`);
   }
 
   if(id==="ad-fee"){
     const rows = cache.adReport;
+    const vatTh2 = `<th style="text-align:right">공급가액</th><th style="text-align:right">부가세</th><th style="text-align:right">합계</th>`;
+    const vatRow2 = (amount, brand) => {
+      const s = supplyAmt(amount, brand);
+      const v = vatAmt(amount, brand);
+      return `<td class="num">${won(s)}</td><td class="num">${won(v)}</td><td class="num">${won(amount)}</td>`;
+    };
+    const vatFoot2 = (items, amtFn, brandFn) => {
+      const total = items.reduce((s,r)=>s+amtFn(r),0);
+      const s = items.reduce((sum,r)=>sum+supplyAmt(amtFn(r), brandFn(r)),0);
+      const v = total - s;
+      return `<td class="num">${won(s)}</td><td class="num">${won(v)}</td><td class="num">${won(total)}</td>`;
+    };
+
+    // 대행수수료
     const agencyRows = rows.filter(r=>r.agencyFee>0).sort((a,b)=>b.agencyFee-a.agencyFee);
     const agencyBody = agencyRows.map(r=>`<tr>
       <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
-      <td>${r.brand}</td><td class="num">${won(r.agencyFee)}</td>
+      <td>${r.brand}</td>${vatRow2(r.agencyFee, r.brand)}
     </tr>`).join("");
-    const agencyTotal = agencyRows.reduce((s,r)=>s+r.agencyFee,0);
 
+    // 랩사수수료
     const labMap = new Map();
     rows.forEach(r=>{
       if(!r.lab || r.lab==="-" || !r.labFee) return;
-      const key=`${r.channel}||${r.lab}`;
-      labMap.set(key,(labMap.get(key)||0)+r.labFee);
+      const key=`${r.channel}||${r.lab}||${r.brand}`;
+      if(!labMap.has(key)) labMap.set(key,{ch:r.channel, lab:r.lab, brand:r.brand, sum:0});
+      labMap.get(key).sum += r.labFee;
     });
-    const labEntries = [...labMap.entries()]
-      .map(([key,sum])=>{ const [ch,lab]=key.split("||"); return {ch,lab,sum}; })
-      .sort((a,b)=>b.sum-a.sum);
+    const labEntries = [...labMap.values()].sort((a,b)=>b.sum-a.sum);
     const labBody = labEntries.map(e=>`<tr>
       <td><span class="chip chip-${e.ch}">${e.ch}</span></td>
-      <td>${e.lab}</td><td class="num">${won(e.sum)}</td>
+      <td>${e.lab}</td>${vatRow2(e.sum, e.brand)}
     </tr>`).join("");
-    const labTotal = labEntries.reduce((s,e)=>s+e.sum,0);
 
     panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">수수료</span>`,`
       <div class="section-label">대행수수료</div>
       <table>
-        <thead><tr><th>채널</th><th>거래처</th><th style="text-align:right">대행수수료</th></tr></thead>
+        <thead><tr><th>채널</th><th>거래처</th>${vatTh2}</tr></thead>
         <tbody>${agencyBody}</tbody>
-        <tfoot><tr><td colspan="2">합계</td><td class="num">${won(agencyTotal)}</td></tr></tfoot>
+        <tfoot><tr><td colspan="2">합계</td>${vatFoot2(agencyRows, r=>r.agencyFee, r=>r.brand)}</tr></tfoot>
       </table>
-      <div class="section-label">랩사수수료 (채널별 합계)</div>
+      <div class="section-label" style="margin-top:16px">랩사수수료</div>
       <table>
-        <thead><tr><th>채널</th><th>랩사</th><th style="text-align:right">랩사수수료</th></tr></thead>
+        <thead><tr><th>채널</th><th>랩사</th>${vatTh2}</tr></thead>
         <tbody>${labBody}</tbody>
-        <tfoot><tr><td colspan="2">합계</td><td class="num">${won(labTotal)}</td></tr></tfoot>
+        <tfoot><tr><td colspan="2">합계</td>${vatFoot2(labEntries, e=>e.sum, e=>e.brand)}</tr></tfoot>
       </table>`);
   }
 
