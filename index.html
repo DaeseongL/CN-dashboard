@@ -396,20 +396,20 @@ function renderDetail(id){
       <td>${r.brand}</td><td class="num">${won(r.amount)}</td>
     </tr>`).join("");
     const infoSection = infoOnlyRows.length > 0 ? `
-      <tr><td colspan="3" style="font-weight:bold;padding:8px 4px;border-top:2px solid #ddd">인포광고금액</td></tr>
-      <tr style="background:#f5f5f5"><th>채널</th><th>거래처</th><th style="text-align:right">금액</th></tr>
-      ${infoBody}
-      <tr><td colspan="2" style="font-weight:bold">인포 합계</td><td class="num" style="font-weight:bold">${won(infoTotal)}</td></tr>
+      <br>
+      <table>
+        <thead><tr><th>채널</th><th>거래처</th><th style="text-align:right">광고매출금액</th></tr></thead>
+        <tbody>${infoBody}</tbody>
+        <tfoot><tr><td colspan="2">인포 합계</td><td class="num">${won(infoTotal)}</td></tr></tfoot>
+      </table>
     ` : "";
     panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">광고매출금액</span>`,`
       <table>
         <thead><tr><th>채널</th><th>거래처</th><th style="text-align:right">광고매출금액</th></tr></thead>
         <tbody>${adBody}</tbody>
-        <tfoot>
-          <tr><td colspan="2">합계</td><td class="num">${won(adTotal)}</td></tr>
-        </tfoot>
-        ${infoSection}
-      </table>`);
+        <tfoot><tr><td colspan="2">합계</td><td class="num">${won(adTotal)}</td></tr></tfoot>
+      </table>
+      ${infoSection}`);
   }
 
   if(id==="ad-fee"){
