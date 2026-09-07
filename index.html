@@ -389,7 +389,8 @@ function renderDetail(id){
       <td>${r.brand}</td><td class="num">${won(r.amount)}</td>
     </tr>`).join("");
     // 인포
-    const infoOnlyRows = [...allRows.filter(r => r.brand && r.brand.includes("씨엔티브이플러스") && r.brand.includes("인포"))].sort((a,b)=>a.channel.localeCompare(b.channel));
+    const chOrder = {"CN":0,"CC":1,"CA":2};
+    const infoOnlyRows = [...allRows.filter(r => r.brand && r.brand.includes("씨엔티브이플러스") && r.brand.includes("인포"))].sort((a,b)=>(chOrder[a.channel]??9)-(chOrder[b.channel]??9));
     const infoTotal = infoOnlyRows.reduce((s,r)=>s+r.amount,0);
     const infoBody = infoOnlyRows.map(r=>`<tr>
       <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
