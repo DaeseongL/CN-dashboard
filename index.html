@@ -443,7 +443,7 @@ function renderDetail(id){
 
   if(id==="ad-fee"){
     const rows = cache.adReport;
-    const vatTh2 = `<th style="text-align:right">공급가액</th><th style="text-align:right">부가세</th><th style="text-align:right">합계</th>`;
+    const vatTh2 = `<th style="text-align:right;width:120px">공급가액</th><th style="text-align:right;width:100px">부가세</th><th style="text-align:right;width:120px">합계</th>`;
     const vatRow2 = (amount, brand) => {
       const s = supplyAmt(amount, brand);
       const v = vatAmt(amount, brand);
@@ -456,39 +456,64 @@ function renderDetail(id){
       return `<td class="num">${won(s)}</td><td class="num">${won(v)}</td><td class="num">${won(total)}</td>`;
     };
 
-    // 대행수수료
+    // 대행수수료 (내림차순)
     const agencyRows = rows.filter(r=>r.agencyFee>0).sort((a,b)=>b.agencyFee-a.agencyFee);
     const agencyBody = agencyRows.map(r=>`<tr>
       <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
       <td>${r.brand}</td>${vatRow2(r.agencyFee, r.brand)}
     </tr>`).join("");
 
-    // 랩사수수료
-    const labMap = new Map();
+    // 랩사수수료: 채널별·랩사별 그룹핑 후 내림차순
+    // key: "채널||랩사" → 그룹 내 거래처 목록
+    const labGroupMap = new Map();
     rows.forEach(r=>{
       if(!r.lab || r.lab==="-" || !r.labFee) return;
-      const key=`${r.channel}||${r.lab}||${r.brand}`;
-      if(!labMap.has(key)) labMap.set(key,{ch:r.channel, lab:r.lab, brand:r.brand, sum:0});
-      labMap.get(key).sum += r.labFee;
+      const groupKey = `${r.channel}||${r.lab}`;
+      if(!labGroupMap.has(groupKey)) labGroupMap.set(groupKey,{ch:r.channel, lab:r.lab, items:[], total:0});
+      const g = labGroupMap.get(groupKey);
+      g.items.push({brand:r.brand, amount:r.labFee});
+      g.total += r.labFee;
     });
-    const labEntries = [...labMap.values()].sort((a,b)=>b.sum-a.sum);
-    const labBody = labEntries.map(e=>`<tr>
-      <td><span class="chip chip-${e.ch}">${e.ch}</span></td>
-      <td>${e.lab}</td>${vatRow2(e.sum, e.brand)}
-    </tr>`).join("");
+    // 그룹 내 거래처 내림차순 정렬
+    const labGroups = [...labGroupMap.values()].sort((a,b)=>b.total-a.total);
+    labGroups.forEach(g => g.items.sort((a,b)=>b.amount-a.amount));
+
+    // 랩사수수료 body 생성 (채널·랩사별 소계)
+    let labBody = "";
+    let labGrandTotal = 0;
+    let labGrandSupply = 0;
+    labGroups.forEach(g => {
+      g.items.forEach(item => {
+        labBody += `<tr>
+          <td><span class="chip chip-${g.ch}">${g.ch}</span></td>
+          <td>${g.lab}</td>${vatRow2(item.amount, item.brand)}
+        </tr>`;
+      });
+      const gSupply = g.items.reduce((s,i)=>s+supplyAmt(i.amount,i.brand),0);
+      const gVat    = g.total - gSupply;
+      labBody += `<tr class="subtotal">
+        <td colspan="2">${g.ch} ${g.lab} 소계</td>
+        <td class="num">${won(gSupply)}</td><td class="num">${won(gVat)}</td><td class="num">${won(g.total)}</td>
+      </tr>`;
+      labGrandTotal += g.total;
+      labGrandSupply += gSupply;
+    });
+    const labGrandVat = labGrandTotal - labGrandSupply;
 
     panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">수수료</span>`,`
       <div class="section-label">대행수수료</div>
-      <table>
+      <table style="table-layout:fixed;width:100%">
+        <colgroup><col style="width:60px"><col><col style="width:120px"><col style="width:100px"><col style="width:120px"></colgroup>
         <thead><tr><th>채널</th><th>거래처</th>${vatTh2}</tr></thead>
         <tbody>${agencyBody}</tbody>
         <tfoot><tr><td colspan="2">합계</td>${vatFoot2(agencyRows, r=>r.agencyFee, r=>r.brand)}</tr></tfoot>
       </table>
       <div class="section-label" style="margin-top:16px">랩사수수료</div>
-      <table>
+      <table style="table-layout:fixed;width:100%">
+        <colgroup><col style="width:60px"><col><col style="width:120px"><col style="width:100px"><col style="width:120px"></colgroup>
         <thead><tr><th>채널</th><th>랩사</th>${vatTh2}</tr></thead>
         <tbody>${labBody}</tbody>
-        <tfoot><tr><td colspan="2">합계</td>${vatFoot2(labEntries, e=>e.sum, e=>e.brand)}</tr></tfoot>
+        <tfoot><tr><td colspan="2">총 합계</td><td class="num">${won(labGrandSupply)}</td><td class="num">${won(labGrandVat)}</td><td class="num">${won(labGrandTotal)}</td></tr></tfoot>
       </table>`);
   }
 
@@ -531,7 +556,7 @@ function renderDetail(id){
         </tr>`;
       });
       billBody += `<tr class="subtotal">
-        <td colspan="2">${b.agency} 합계</td>
+        <td colspan="2">${b.agency} 소계</td>
         <td class="num">${won(b.total)}</td>
       </tr>`;
       billTotal += toNum(b.total);
@@ -540,13 +565,15 @@ function renderDetail(id){
 
     panel.innerHTML = wrap(`기준일 ${baseLabel} 외상매출금 / 받을어음 <span class="tag">거래처별 소계</span>`,`
       <div class="section-label">기준일 ${baseLabel} 외상매출금 상세</div>
-      <table>
+      <table style="table-layout:fixed;width:100%">
+        <colgroup><col><col style="width:80px"><col style="width:130px"></colgroup>
         <thead><tr><th>거래처</th><th>매출월</th><th style="text-align:right">외상매출금</th></tr></thead>
         <tbody>${arBody}</tbody>
         <tfoot><tr><td colspan="2">총 합계</td><td class="num">${won(arTotal)}</td></tr></tfoot>
       </table>
       <div class="section-label" style="margin-top:20px">기준일 ${baseLabel} 받을어음 상세</div>
-      <table>
+      <table style="table-layout:fixed;width:100%">
+        <colgroup><col><col style="width:80px"><col style="width:130px"></colgroup>
         <thead><tr><th>대행사</th><th>매출월</th><th style="text-align:right">받을어음 잔액</th></tr></thead>
         <tbody>${billBody}</tbody>
         <tfoot><tr><td colspan="2">총 합계</td><td class="num">${won(billTotal)}</td></tr></tfoot>
