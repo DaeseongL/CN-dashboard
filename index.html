@@ -425,7 +425,8 @@ function renderDetail(id){
     </tr>`).join("");
     const infoSection = infoOnlyRows.length > 0 ? `
       <div class="section-label" style="margin-top:16px">인포광고금액</div>
-      <table>
+      <table style="table-layout:fixed;width:100%">
+        <colgroup><col style="width:55px"><col><col style="width:110px"><col style="width:90px"><col style="width:110px"></colgroup>
         <thead><tr><th>채널</th><th>거래처</th>${vatTh}</tr></thead>
         <tbody>${infoBody}</tbody>
         <tfoot><tr><td colspan="2">합계</td>${vatFoot(infoOnlyRows)}</tr></tfoot>
@@ -433,7 +434,8 @@ function renderDetail(id){
 
     panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">광고매출금액</span>`,`
       <div class="section-label">광고매출금액</div>
-      <table>
+      <table style="table-layout:fixed;width:100%">
+        <colgroup><col style="width:55px"><col><col style="width:110px"><col style="width:90px"><col style="width:110px"></colgroup>
         <thead><tr><th>채널</th><th>거래처</th>${vatTh}</tr></thead>
         <tbody>${adBody}</tbody>
         <tfoot><tr><td colspan="2">합계</td>${vatFoot(adOnlyRows)}</tr></tfoot>
@@ -503,14 +505,14 @@ function renderDetail(id){
     panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">수수료</span>`,`
       <div class="section-label">대행수수료</div>
       <table style="table-layout:fixed;width:100%">
-        <colgroup><col style="width:60px"><col><col style="width:120px"><col style="width:100px"><col style="width:120px"></colgroup>
+        <colgroup><col style="width:55px"><col><col style="width:110px"><col style="width:90px"><col style="width:110px"></colgroup>
         <thead><tr><th>채널</th><th>거래처</th>${vatTh2}</tr></thead>
         <tbody>${agencyBody}</tbody>
         <tfoot><tr><td colspan="2">합계</td>${vatFoot2(agencyRows, r=>r.agencyFee, r=>r.brand)}</tr></tfoot>
       </table>
       <div class="section-label" style="margin-top:16px">랩사수수료</div>
       <table style="table-layout:fixed;width:100%">
-        <colgroup><col style="width:60px"><col><col style="width:120px"><col style="width:100px"><col style="width:120px"></colgroup>
+        <colgroup><col style="width:55px"><col><col style="width:110px"><col style="width:90px"><col style="width:110px"></colgroup>
         <thead><tr><th>채널</th><th>랩사</th>${vatTh2}</tr></thead>
         <tbody>${labBody}</tbody>
         <tfoot><tr><td colspan="2">총 합계</td><td class="num">${won(labGrandSupply)}</td><td class="num">${won(labGrandVat)}</td><td class="num">${won(labGrandTotal)}</td></tr></tfoot>
@@ -566,14 +568,14 @@ function renderDetail(id){
     panel.innerHTML = wrap(`기준일 ${baseLabel} 외상매출금 / 받을어음 <span class="tag">거래처별 소계</span>`,`
       <div class="section-label">기준일 ${baseLabel} 외상매출금 상세</div>
       <table style="table-layout:fixed;width:100%">
-        <colgroup><col><col style="width:80px"><col style="width:130px"></colgroup>
+        <colgroup><col style="width:160px"><col style="width:75px"><col style="width:110px"></colgroup>
         <thead><tr><th>거래처</th><th>매출월</th><th style="text-align:right">외상매출금</th></tr></thead>
         <tbody>${arBody}</tbody>
         <tfoot><tr><td colspan="2">총 합계</td><td class="num">${won(arTotal)}</td></tr></tfoot>
       </table>
       <div class="section-label" style="margin-top:20px">기준일 ${baseLabel} 받을어음 상세</div>
       <table style="table-layout:fixed;width:100%">
-        <colgroup><col><col style="width:80px"><col style="width:130px"></colgroup>
+        <colgroup><col style="width:160px"><col style="width:75px"><col style="width:110px"></colgroup>
         <thead><tr><th>대행사</th><th>매출월</th><th style="text-align:right">받을어음 잔액</th></tr></thead>
         <tbody>${billBody}</tbody>
         <tfoot><tr><td colspan="2">총 합계</td><td class="num">${won(billTotal)}</td></tr></tfoot>
