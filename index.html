@@ -327,8 +327,7 @@ function adCardsHtml(){
   const outstanding = cache.adOutstanding.reduce((s,r)=>s+toNum(r.outstanding),0);
   const billTotal   = (cache.adBillRows||[]).reduce((s,r)=>s+toNum(r.total),0);
   const cards = [
-    {id:"ad-amount", cls:"blue",   icon:"₩", label:"광고매출금액",   value:totalAmount,  sub:`${adRows.length}건`},
-    {id:"ad-info",   cls:"indigo", icon:"ℹ", label:"인포광고금액",   value:infoAmount,   sub:`${infoRows.length}건`},
+    {id:"ad-amount", cls:"blue",   icon:"₩", label:"광고매출금액", value:totalAmount, value2:infoAmount, sub:`${adRows.length}건`},
     {id:"ad-fee",    cls:"amber",  icon:"%", label:"대행수수료 + 랩사수수료", value:totalAgencyFee+totalLabFeeExec, sub:"대행사 + RICH/엠크로스 합산"},
     {id:"ad-ar",     cls:"red",    icon:"!", label:"광고 외상매출금 / 받을어음",
       value:outstanding, value2: billTotal,
@@ -359,12 +358,12 @@ function subCardsHtml(){
 }
 
 function simpleCardHtml(c){
-  const val2 = c.value2 !== undefined
+  const val2 = c.id === "ad-amount" && c.value2 !== undefined
+    ? `<div style="margin-top:6px;font-size:13px;color:var(--text-secondary)">인포광고금액 ${won(c.value2)}원</div>`
+    : c.value2 !== undefined
     ? `<div style="margin-top:6px;font-size:13px;color:var(--text-secondary)">받을어음 ${won(c.value2)}원</div>`
     : "";
-  const infoVal = c.infoValue !== undefined
-    ? `<div style="margin-top:6px;font-size:13px;color:var(--text-secondary)">인포광고금액 ${won(c.infoValue)}원</div>`
-    : "";
+  const infoVal = "";
   return `
     <div class="metric-card ${c.cls}" data-id="${c.id}">
       <div class="metric-top"><span class="metric-label">${c.label}</span><span class="metric-icon">${c.icon}</span></div>
@@ -382,32 +381,33 @@ function renderDetail(id){
 
   if(id==="ad-amount"){
     const allRows = cache.adReport;
+    // 일반 광고
     const adOnlyRows = [...allRows.filter(r => !r.brand || !r.brand.includes("인포") || !r.brand.includes("씨엔티브이플러스"))].sort((a,b)=>b.amount-a.amount);
     const adTotal = adOnlyRows.reduce((s,r)=>s+r.amount,0);
-    const body = adOnlyRows.map(r=>`<tr>
+    const adBody = adOnlyRows.map(r=>`<tr>
       <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
       <td>${r.brand}</td><td class="num">${won(r.amount)}</td>
     </tr>`).join("");
+    // 인포
+    const infoOnlyRows = [...allRows.filter(r => r.brand && r.brand.includes("씨엔티브이플러스") && r.brand.includes("인포"))].sort((a,b)=>a.channel.localeCompare(b.channel));
+    const infoTotal = infoOnlyRows.reduce((s,r)=>s+r.amount,0);
+    const infoBody = infoOnlyRows.map(r=>`<tr style="background:#f3e5f5">
+      <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
+      <td>${r.brand}</td><td class="num">${won(r.amount)}</td>
+    </tr>`).join("");
+    const infoSection = infoOnlyRows.length > 0 ? `
+      <tr style="background:#ede7f6"><td colspan="3" style="font-weight:bold;color:#6a1b9a;padding:8px">인포광고금액</td></tr>
+      ${infoBody}
+      <tr style="background:#ede7f6"><td colspan="2" style="font-weight:bold;color:#6a1b9a">인포 합계</td><td class="num" style="font-weight:bold;color:#6a1b9a">${won(infoTotal)}</td></tr>
+    ` : "";
     panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">광고매출금액</span>`,`
       <table>
         <thead><tr><th>채널</th><th>거래처</th><th style="text-align:right">광고매출금액</th></tr></thead>
-        <tbody>${body}</tbody>
-        <tfoot><tr><td colspan="2">합계</td><td class="num">${won(adTotal)}</td></tr></tfoot>
-      </table>`);
-  }
-
-  if(id==="ad-info"){
-    const infoOnlyRows = [...cache.adReport.filter(r => r.brand && r.brand.includes("씨엔티브이플러스") && r.brand.includes("인포"))].sort((a,b)=>a.channel.localeCompare(b.channel));
-    const infoTotal = infoOnlyRows.reduce((s,r)=>s+r.amount,0);
-    const body = infoOnlyRows.map(r=>`<tr>
-      <td><span class="chip chip-${r.channel}">${r.channel}</span></td>
-      <td>${r.brand}</td><td class="num">${won(r.amount)}</td>
-    </tr>`).join("");
-    panel.innerHTML = wrap(`${periodLabel()} 상세 <span class="tag">인포광고금액</span>`,`
-      <table>
-        <thead><tr><th>채널</th><th>거래처</th><th style="text-align:right">인포광고금액</th></tr></thead>
-        <tbody>${body}</tbody>
-        <tfoot><tr><td colspan="2">합계</td><td class="num">${won(infoTotal)}</td></tr></tfoot>
+        <tbody>${adBody}</tbody>
+        <tfoot>
+          <tr><td colspan="2">합계</td><td class="num">${won(adTotal)}</td></tr>
+        </tfoot>
+        ${infoSection}
       </table>`);
   }
 
